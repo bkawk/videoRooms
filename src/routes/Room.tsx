@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useAppState } from "../state";
 import { connect, LocalParticipant, RemoteParticipant } from "twilio-video";
+import { Participant } from "../components/participant";
 
 function Room(props: any) {
   const eventID = props.match.params.eventID;
@@ -37,8 +38,11 @@ function Room(props: any) {
   };
 
   const renderPartipants = () => {
-      // map over partipants and return a Participant componant for each 
-      return <div>{/* <Participant data={participant}/> */}</div>
+      const arr:JSX.Element[] = [];
+      particpants.forEach(function (participant, index) {
+        arr.push(<Participant data={participant} key={index}/>);
+    });
+      return arr;
   }
 
   return (
