@@ -2,8 +2,7 @@ const express = require("express");
 const app = express();
 const cors = require("cors");
 const crypto = require("crypto");
-const AccessToken = require("twilio").jwt.AccessToken;
-const VideoGrant = AccessToken.VideoGrant;
+const twilio = require("twilio");
 require("dotenv").config();
 
 var Airtable = require("airtable");
@@ -15,8 +14,11 @@ const MAX_ALLOWED_SESSION_DURATION = 14400;
 const twilioAccountSid = process.env.TWILIO_ACCOUNT_SID;
 const twilioApiKeySID = process.env.TWILIO_API_KEY_SID;
 const twilioApiKeySecret = process.env.TWILIO_API_KEY_SECRET;
+const twilioAuthToken = process.env.TWILIO_AUTH_TOKEN;
 
 app.use(cors());
+
+const client = new twilio(twilioAccountSid, twilioAuthToken);
 
 app.post("/facilitators", (req, res) => {
   const { name } = req.query;
@@ -62,30 +64,41 @@ app.post("/updateUser", (req, res) => {
 app.post("/addEvent", (req, res) => {
   const eventId = crypto.randomBytes(20).toString("hex");
   console.log(eventId);
-  const { title, description, cost, participants, facilitator } = req.query;
-  base("events").create(
-    [
-      {
-        fields: {
-          title,
-          eventId,
-          start: "2020-03-18T10:27:00.000Z",
-          end: "2020-03-25T10:27:00.000Z",
-          lockAfter: 600,
-          enterBeforeFacilitator: true,
-          cost: +cost,
-          description,
-          eventParticipants: [],
-          facilitator: [facilitator],
-          room: []
+  const {
+    title,
+    roomName,
+    description,
+    cost,
+    participants,
+    facilitator
+  } = req.query;
+  client.video.rooms.create({ uniqueName: "DailyStandup" }).then(room => {
+    const roomSID = room.sid;
+    base("events").create(
+      [
+        {
+          fields: {
+            title,
+            eventId,
+            start: "2020-03-18T10:27:00.000Z",
+            end: "2020-03-25T10:27:00.000Z",
+            lockAfter: 600,
+            enterBeforeFacilitator: true,
+            cost: +cost,
+            description,
+            eventParticipants: [],
+            facilitator: [facilitator],
+            roomName,
+            roomSID
+          }
         }
+      ],
+      function(err, records) {
+        if (err) res.status(400).send(err);
+        else res.status(200).send(records[0]._rawJson);
       }
-    ],
-    function(err, records) {
-      if (err) res.status(400).send(err);
-      else res.status(200).send(records[0]._rawJson);
-    }
-  );
+    );
+  });
 });
 
 app.post("/BuyTicket", (req, res) => {
@@ -133,8 +146,11 @@ app.get("/Event", (req, res) => {
   });
 });
 
-app.get("/token", (req, res) => {
-  const { identity, roomName } = req.query;
+app.get("/enterEvent", (req, res) => {
+  const { uid, eventID } = req.query;
+  const AccessToken = twilio.jwt.AccessToken;
+  const VideoGrant = AccessToken.VideoGrant;
+  // TODO: Check the user has a ticket for the room they are trying to enter
   const token = new AccessToken(
     twilioAccountSid,
     twilioApiKeySID,
@@ -143,11 +159,11 @@ app.get("/token", (req, res) => {
       ttl: MAX_ALLOWED_SESSION_DURATION
     }
   );
-  token.identity = identity;
-  const videoGrant = new VideoGrant({ room: roomName });
+  token.identity = uid;
+  const videoGrant = new VideoGrant({ room: eventID });
   token.addGrant(videoGrant);
-  res.send(token.toJwt());
-  console.log(`issued token for ${identity} in room ${roomName}`);
+  const userToken = token.toJwt()
+  res.status(200).send({ userToken });
 });
 
 app.listen(8081, () => console.log("token server running on 8081"));

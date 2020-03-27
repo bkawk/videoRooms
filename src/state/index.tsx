@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState } from 'react';
 
 interface StateContextType {
     state: {
+        userToken: string;
         id: string;
         authState: boolean;
         uid: string;

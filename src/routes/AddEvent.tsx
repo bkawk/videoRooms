@@ -11,14 +11,15 @@ function AddEvent() {
     description: 'b',
     cost: '0.00',
     participants: '10',
+    roomName: '',
   });
 
   const onSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    const { title, description, cost, participants } = form;
+    const { title, roomName, description, cost, participants } = form;
     try {
       const facilitator = state.id;
-      const params = new window.URLSearchParams({ title, description, cost, participants, facilitator });
+      const params = new window.URLSearchParams({ title, roomName, description, cost, participants, facilitator });
       const url = `${process.env.REACT_APP_API_BASE_URL}/addEvent?${params}`;
       const response = await fetch(url, {method: 'POST'});
       const data = await response.json();
@@ -40,6 +41,10 @@ function AddEvent() {
         <form onSubmit={onSubmit}>
           <label>Title
             <input type="text" id="title" value={form.title} onChange={onChange}/>
+          </label>
+          <br/>
+          <label>Room Name
+            <input type="text" id="roomName" value={form.roomName} onChange={onChange}/>
           </label>
           <br/>
           <label>Description

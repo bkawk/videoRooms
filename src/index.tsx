@@ -11,6 +11,7 @@ import { App } from "./routes/App";
 import { AddEvent } from "./routes/AddEvent";
 import { ShowEvents } from "./routes/ShowEvents";
 import { Event } from "./routes/Event";
+import { Room } from "./routes/Room";
 import * as serviceWorker from "./serviceWorker";
 
 ReactDOM.render(
@@ -21,6 +22,7 @@ ReactDOM.render(
         <Route exact path="/events/add-event" component={AddEvent} />
         <Route exact path="/events/show-events" component={ShowEvents} />
         <Route exact path="/events/:eventID" component={Event} />
+        <Route exact path="/room/:eventID" component={Room} />
       </Switch>
     </AppStateProvider>
   </BrowserRouter>, 

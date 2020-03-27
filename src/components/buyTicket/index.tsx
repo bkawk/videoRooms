@@ -2,6 +2,7 @@ import React from "react";
 import { useAppState } from "../../state";
 import { useHistory } from "react-router-dom";
 import { FacebookLogin } from "../facebookLogin";
+import { EnterEvent } from "../enterEvent"
 
 function BuyTicket(props: any) {
   const { state } = useAppState();
@@ -29,7 +30,7 @@ function BuyTicket(props: any) {
 
   const ticketState = () => {
     if (!state.id) return <FacebookLogin/>
-    else if (haveTicketAlready()) return <div>You have a ticket already!</div>
+    else if (haveTicketAlready()) return <div>You have a ticket already! <EnterEvent eventID={eventID} /></div>
     else return <div onClick={buyTicket}>Buy a Ticket</div>
   }
 
