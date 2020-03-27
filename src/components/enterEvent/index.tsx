@@ -13,7 +13,6 @@ function EnterEvent(props: any) {
       const params = new window.URLSearchParams({ eventID, uid });
       const url = `${process.env.REACT_APP_API_BASE_URL}/enterEvent?${params}`;
       const response = await fetch(url, { method: "GET" });
-      console.log(response);
       const data = await response.json();
       const userToken = data.userToken; // TODO save this to state
       if (userToken) setState({...state, userToken})

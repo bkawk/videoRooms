@@ -8,7 +8,9 @@ function Participant(data: any) {
 
   return (
     <div className="participant">
-
+        1
+        <video></video>
+        <audio></audio>
     </div>
   );
 }
